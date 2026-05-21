@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parity</title>
+    <style>
+        /* --- PREMIUM APPLISTIC GLOBAL VARIETIES --- */
+        :root {
+            --bg-color: #030308;
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --glow-blue: #0088ff;
+            --glow-cyan: #00d2ff;
+            --text-main: #f5f5f7;
+            --text-sub: #86868b;
+            --accent-green: #30d158;
+            --max-width: 1200px; /* Expanded for more info */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html, body {
+            scroll-behavior: smooth;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden; /* Fixes any horizontal gaps */
+            width: 100%;
+        }
+
+        html {
+            scroll-padding-top: 80px;
+        }
+
+        /* --- LOADER --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #020205;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .loader-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            animation: logoPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(0.96); filter: brightness(0.8) drop-shadow(0 0 20px rgba(0,136,255,0.2)); }
+            50% { transform: scale(1.04); filter: brightness(1.2) drop-shadow(0 0 40px rgba(0,136,255,0.5)); }
+        }
+
+        .loaded #loader {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- DEEP BACKGROUND AMBIENTS --- */
+        .ambient-glow {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0,136,255,0.08) 0%, rgba(0,0,0,0) 70%);
+            top: -200px;
+            right: -100px;
+            z-index: -2;
+            pointer-events: none;
+            filter: blur(100px);
+        }
+
+        .ambient-glow-2 {
+            position: fixed;
+            width: 900px;
+            height: 900px;
+            background: radial-gradient(circle, rgba(0,210,255,0.04) 0%, rgba(0,0,0,0) 70%);
+            bottom: -200px;
+            left: -200px;
+            z-index: -2;
+            pointer-events: none;
+            filter: blur(120px);
+        }
+
+        /* --- DYNAMIC STICKY NAV BAR --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 64px;
+            background: rgba(3, 3, 8, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-container {
+            width: 100%;
+            max-width: var(--max-width);
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .nav-logo img {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid var(--card-border);
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 136, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-nav.highlight {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+        }
+
+        .btn-nav.highlight:hover {
+            background: #f5f5f7;
+            transform: scale(1.03);
+            box-shadow: 0 4px 15px rgba(255,255,255,0.15);
+        }
+
+        /* --- CONTENT STRUCTURE --- */
+        section {
+            width: 100%;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 24px;
+            position: relative;
+        }
+
+        /* --- HERO --- */
+        #hero {
+            min-height: 95vh;
+            text-align: center;
+        }
+
+        .hero-logo {
+            width: 160px;
+            height: 160px;
+            border-radius: 34px;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s ease;
+        }
+
+        h1 {
+            font-size: 68px;
+            font-weight: 700;
+            letter-spacing: -2.5px;
+            line-height: 1.05;
+            background: linear-gradient(180deg, #ffffff 30%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 1s ease 0.1s;
+        }
+
+        .hero-tagline {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-sub);
+            letter-spacing: -0.5px;
+            max-width: 800px;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, opacity 1s ease 0.2s;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, opacity 1s ease 0.3s;
+        }
+
+        .loaded .hero-logo, .loaded h1, .loaded .hero-tagline, .loaded .cta-group {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            padding: 14px 28px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(255,255,255,0.18);
+        }
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .btn-card {
+            margin-top: 24px;
+            padding: 10px 20px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .btn-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(0, 136, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* --- ARCHITECTURE GRID --- */
+        .section-headline {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--glow-blue);
+            margin-bottom: 12px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 44px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin-bottom: 48px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .wide-info-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 32px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: left;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color 0.3s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 136, 255, 0.25);
+            transform: translateY(-4px);
+        }
+
+        .card-content h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .card-content p {
+            color: var(--text-sub);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* --- FAQ SECTION --- */
+        .faq-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        details {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        details:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        summary {
+            padding: 24px 32px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::after {
+            content: '+';
+            font-size: 24px;
+            color: var(--glow-blue);
+            font-weight: 300;
+            transition: transform 0.3s ease;
+        }
+
+        details[open] summary::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-content {
+            padding: 0 32px 32px 32px;
+            color: var(--text-sub);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* --- TRUST & SECURITY MONITOR PANEL --- */
+        .security-banner {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(48, 209, 88, 0.03) 0%, rgba(0, 136, 255, 0.02) 100%);
+            border: 1px solid rgba(48, 209, 88, 0.15);
+            border-radius: 28px;
+            padding: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .security-text {
+            max-width: 60%;
+        }
+
+        .security-text h3 {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .security-badge {
+            background: rgba(48, 209, 88, 0.1);
+            color: var(--accent-green);
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .security-text p {
+            color: var(--text-sub);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* --- CONTACT LAYOUT --- */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .contact-info h3 {
+            font-size: 28px;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .contact-info p {
+            color: var(--text-sub);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--glow-blue);
+        }
+
+        .btn-submit {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            width: 100%;
+            padding: 60px 24px;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
+        /* COMPACT DESIGN FOR MOBILE VIEWPORTS */
+        @media (max-width: 868px) {
+            h1 { font-size: 44px; }
+            .hero-tagline { font-size: 19px; }
+            .section-title { font-size: 32px; }
+            .security-banner { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
+            .security-text { max-width: 100%; }
+            .contact-container { grid-template-columns: 1fr; gap: 40px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <img src="logo.jpg" alt="Parity Loading Core" class="loader-logo">
+    </div>
+
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow-2"></div>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#hero" class="nav-logo">
+                <img src="logo.jpg" alt="Parity Ecosystem">
+                <span>Parity</span>
+            </a>
+            <div class="nav-links">
+                <a href="#hero" class="btn-nav highlight">Download</a>
+                <a href="#design" class="btn-nav">Design</a>
+                <a href="#about" class="btn-nav">Cyber Security</a>
+                <a href="#faq" class="btn-nav">FAQ</a>
+                <a href="#contact" class="btn-nav">Get in Touch</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <!--img src="logo.jpg" alt="Parity Vector Art" class="hero-logo"-->
+        <h1>Parity</h1>
+        <p class="hero-tagline">A balanced digital ecosystem designed to keep participation fair, accessible, and sustainable for everyone.</p>
+        <div class="cta-group">
+            <a href="https://github.com" class="btn btn-primary">Download Client</a>
+            <a href="#design" class="btn btn-secondary">Explore Architecture</a>
+        </div>
+    </section>
+
+    <section id="design">
+        <span class="section-headline">Fairness by Design.</span>
+        <h2 class="section-title">Proof of Equality.</h2>
+        <div class="wide-info-layout">
+            <div class="card">
+                <div class="card-content">
+                    <h3>The Reverse-Difficulty Loop</h3>
+                    <p>Traditional mining scales rewards to the strongest machines. Parity flips the structural layout completely: the more powerful your workstation, the more difficult the work threshold becomes. This guarantees low-tier wallets consistently generate steady asset flows.</p>
+                </div>
+                <a href="https://github.com" class="btn btn-card">View Mining Spec</a>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <h3>Zero Hardware Strain</h3>
+                    <p>Because the network does not rely on computational saturation or continuous brute-force guessing patterns, our client consumes negligible resources. Your system runs quietly without degradation, thermal limits, or hardware fatigue.</p>
+                </div>
+                <a href="https://github.com" class="btn btn-card">Check Performance Specs</a>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <h3>Ultra-Low Power Access</h3>
+                    <p>Parity is fully scalable. The algorithm is light enough to run natively on tiny, hyper-efficient hardware configurations—including a Raspberry Pi 2. Decentralized allocation belongs to real human endpoints, not data centers.</p>
+                </div>
+                <a href="https://github.com" class="btn btn-card">Setup Raspberry Pi Node</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <span class="section-headline">Cyber Security & Trust</span>
+        <h2 class="section-title">Verified Runtime Infrastructure.</h2>
+        <div class="wide-info-layout">
+            <div class="card">
+                <div class="card-content">
+                    <h3>Closed-Source Integrity</h3>
+                    <p>The core mining client binary engine is strictly compiled under protective, closed-source specifications. This architecture successfully prevents malicious tampering, prevents the creation of custom exploit pools, and preserves the unique mathematical distribution loop from institutional manipulation.</p>
+                </div>
+                <a href="#contact" class="btn btn-card">Inquire About Audits</a>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <h3>The Web Client Future</h3>
+                    <p>Development is actively progressing towards a fully integrated web browser application layer. Soon, users will be able to securely participate in the Proof of Equality network directly from any browser viewport without running a standalone client.</p>
+                </div>
+                <a href="#contact" class="btn btn-card">Join Beta Waitlist</a>
+            </div>
+        </div>
+
+        <div class="security-banner">
+            <div class="security-text">
+                <h3>Autonomous Verification <span class="security-badge">Clean Record</span></h3>
+                <p>We prioritize your systemic safety. Because crypto mining software frequently triggers false positives within standard local anti-virus setups, we strongly encourage every node user to systematically upload our binary file and evaluate the integrity metrics independently.</p>
+            </div>
+            <a href="https://www.virustotal.com" target="_blank" class="btn btn-secondary">View VirusTotal Report</a>
+        </div>
+    </section>
+
+    <section id="faq">
+        <span class="section-headline">Knowledge Base</span>
+        <h2 class="section-title">Frequently Asked Questions.</h2>
+
+        <div class="faq-container">
+            <details>
+                <summary>Is Parity intended to be a stablecoin?</summary>
+                <div class="faq-content">
+                    Yes, Parity is designed from the ground up to establish a stable, predictable growth trajectory. By restricting massive mining farms through the reverse-difficulty loop, the coin prevents sudden supply dumps and aggressive market volatility caused by institutional whales.
+                </div>
+            </details>
+            <details>
+                <summary>Will this harm my personal computer?</summary>
+                <div class="faq-content">
+                    No. The Parity algorithm bypasses traditional hashing brute-force mechanics. It runs gracefully in the background with near-zero CPU and GPU footprint, meaning your fans won't spin up, temperatures won't rise, and component lifespan remains unaffected.
+                </div>
+            </details>
+            <details>
+                <summary>Why is the mining client closed-source?</summary>
+                <div class="faq-content">
+                    To protect the "Proof of Equality" mechanics. If the core validation algorithm were open-source, malicious actors could compile modified versions to bypass the reverse-difficulty restrictions, essentially creating artificial bottlenecks and ruining the fair distribution model.
+                </div>
+            </details>
+            <details>
+                <summary>Can I run Parity on multiple devices?</summary>
+                <div class="faq-content">
+                    You can, however, the network limits excessive concentration from identical IP subnets to maintain decentralization. We encourage users to run single nodes on their daily driver laptops, desktops, or dedicated ultra-low-power devices like a Raspberry Pi.
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <section id="contact">
+        <span class="section-headline">Network Desk</span>
+        <h2 class="section-title">Have Questions? Reach Out.</h2>
+
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Direct Communications</h3>
+                <p>Do you have inquiries regarding the Proof of Equality structure, client connectivity, or future wallet developments? Drop our operations desk a line using the form or our official email channel.</p>
+                <p style="color: var(--text-main); font-weight: 500;">Response Window: <span style="color: var(--text-sub); font-weight: 400;">48-72 Hours (Solo Developer Architecture)</span></p>
+            </div>
+
+            <form class="contact-form" action="mailto:parity@atomicmail.io" method="post" enctype="text/plain">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="name@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Inquiry</label>
+                    <textarea id="message" name="message" rows="5" placeholder="How can we help you explore Parity?" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Send Inquiry</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Parity Cryptographic System. Protected Binaries. Built for Absolute Equality.</p>
+    </footer>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 600);
+        });
+    </script>
+</body>
+</html>
